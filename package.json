@@ -1,0 +1,17 @@
+{
+  "name": "palette-analyzer",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Analyzes the local and global distances in [RGB, LAB, UCS, Color Names] model, given a palette.",
+  "author": {
+    "name": "Yang Liu",
+    "url": "http://yangliu.life"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yyyliu/palette-analyzer.git"
+  },
+  "dependencies": {
+    "vega-scale": "^2.0.1"
+  }
+}
