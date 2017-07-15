@@ -4,10 +4,132 @@
     <meta charset="UTF-8">
     <title>Palette Analyzer</title>
     <script src="../../build/palette-analyzer.js"></script>
+    <script src="https://vega.github.io/vega/vega.js"></script>
 </head>
 <body>
-    <div id="header">
-        Open the console ...
-    </div>
+    <div id="line-chart"></div>
+    <script>
+      var palletes = [
+        'viridis',
+        'inferno',
+        'magma',
+        'plasma',
+        'spectral',
+        'greens',
+        'blues',
+        'purples',
+        'reds',
+        'oranges',
+        'greys',
+        'tableau10',
+        'tableau20'
+      ];
+
+      var data = [];
+      for (var i = 0; i < palletes.length; i++) {
+        data = data.concat(palette_analyzer.analyze(palletes[i], 0.05));
+      }
+
+      var spec = {
+        "$schema": "https://vega.github.io/schema/vega/v3.0.json",
+        "width": 700,
+        "height": 400,
+        "padding": 5,
+
+        "signals": [
+          {
+            "name": "palette", "value": palletes[0],
+            "bind": {"input": "select", "options": palletes}
+          }
+        ],
+
+        "data": [
+          {
+            "name": "table",
+            "values": data
+          },
+          {
+            "name": "perPalette",
+            "source": "table",
+            "transform": [
+              {"type": "filter", "expr": "datum.palette ==palette"}
+            ]
+          }
+        ],
+
+        "scales": [
+          {
+            "name": "x",
+            "type": "point",
+            "range": "width",
+            "domain": {"data": "perPalette", "field": "x"}
+          },
+          {
+            "name": "y",
+            "type": "linear",
+            "range": "height",
+            "nice": true,
+            "zero": true,
+            "domain": {"data": "perPalette", "field": "rgb"}
+          },
+          {
+            "name": "color",
+            "type": "ordinal",
+            "range": "category",
+            "domain": [1, 2, 3]
+          }
+        ],
+
+        "axes": [
+          {"orient": "bottom", "scale": "x"},
+          {"orient": "left", "scale": "y"}
+        ],
+
+        "marks": [
+          {
+            "type": "line",
+            "from": {"data": "perPalette"},
+            "encode": {
+              "enter": {
+                "x": {"scale": "x", "field": "x"},
+                "y": {"scale": "y", "field": "rgb"},
+                "stroke": {"scale": "color", "value": 1},
+                "strokeWidth": {"value": 2}
+              }
+            }
+          },
+          {
+            "type": "line",
+            "from": {"data": "perPalette"},
+            "encode": {
+              "enter": {
+                "x": {"scale": "x", "field": "x"},
+                "y": {"scale": "y", "field": "ucs"},
+                "stroke": {"scale": "color", "value": 2},
+                "strokeWidth": {"value": 2}
+              }
+            }
+          },
+          {
+            "type": "line",
+            "from": {"data": "perPalette"},
+            "encode": {
+              "enter": {
+                "x": {"scale": "x", "field": "x"},
+                "y": {"scale": "y", "field": "lab"},
+                "stroke": {"scale": "color", "value": 3},
+                "strokeWidth": {"value": 2}
+              }
+            }
+          }
+        ]
+      };
+
+      var view = new vega.View(vega.parse(spec), {
+        loader: vega.loader({baseURL: 'https://vega.github.io/vega/'}),
+        logLevel: vega.Warn,
+        renderer: 'canvas'
+      }).initialize('#line-chart').hover().run();
+    </script>
 </body>
 </html>
