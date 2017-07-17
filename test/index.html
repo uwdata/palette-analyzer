@@ -28,7 +28,8 @@
       var color_spaces = [
         'RGB',
         'Uniform Color Scheme',
-        'CIELAB (DE76)'
+        'CIELAB (DE76)',
+        'Color Name'
       ]
 
       var spec = {
@@ -116,6 +117,18 @@
                 "x": {"scale": "x", "field": "x"},
                 "y": {"scale": "y", "field": "lab"},
                 "stroke": {"scale": "color", "value": color_spaces[2]},
+                "strokeWidth": {"value": 2}
+              }
+            }
+          },
+          {
+            "type": "line",
+            "from": {"data": "perPalette"},
+            "encode": {
+              "enter": {
+                "x": {"scale": "x", "field": "x"},
+                "y": {"scale": "y", "field": "color_name"},
+                "stroke": {"scale": "color", "value": color_spaces[3]},
                 "strokeWidth": {"value": 2}
               }
             }

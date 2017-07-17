@@ -1,6 +1,7 @@
 import * as d3 from 'd3-color'
 import {jab} from '../node_modules/d3-cam02/src/cam02.js'
 import {norm2} from './math.js'
+import {default as c3} from '../lib/c3'
 
 /**
  * Compute the color distance in RGB space.
@@ -59,4 +60,35 @@ export function distanceUCS (c1, c2) {
  */
 export function distanceCIEDE2000 (c1, c2) {
   // TODO
+}
+
+function c3_index (color) {
+  let x = d3.lab(color)
+  let l = 5 * Math.round(x.l/5)
+  let a = 5 * Math.round(x.a/5)
+  let b = 5 * Math.round(x.b/5)
+  let lookup = [l, a, b].join(",")
+  return c3.map[lookup]
+}
+
+export function distanceNameCosine (c1, c2) {
+  // ask c3 to load data if this is never done before
+  // note that it loads synchronously
+  if (!c3.color) {
+    c3.load('../lib/c3_data.json')
+
+    // build lookup table
+    c3.map = {}
+    for (let c = 0; c < c3.color.length; ++c) {
+      let x = c3.color[c];
+      c3.map[[x.l, x.a, x.b].join(",")] = c;
+    }
+  }
+
+  // find the index of the two colors
+  let i1 = c3_index(c1)
+  let i2 = c3_index(c2)
+
+  // compute the cosine difference
+  return 1 - c3.color.cosine(i1, i2)
 }

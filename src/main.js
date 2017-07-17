@@ -1,5 +1,10 @@
 import * as vega from 'vega-scale'
-import {distanceUCS, distanceRGB, distanceLAB} from './colorDistance'
+import {
+  distanceUCS,
+  distanceRGB,
+  distanceLAB,
+  distanceNameCosine
+} from './colorDistance'
 
 function analyze (palette, stride) {
   stride = stride || 0.1
@@ -27,7 +32,8 @@ function analyze (palette, stride) {
       x: i,
       ucs: distanceUCS(scheme[i], scheme[i + 1]),
       rgb: distanceRGB(scheme[i], scheme[i + 1]),
-      lab: distanceLAB(scheme[i], scheme[i + 1])
+      lab: distanceLAB(scheme[i], scheme[i + 1]),
+      color_name: distanceNameCosine(scheme[i], scheme[i + 1]) * 50
     }
     diff.push(tuple)
   }
