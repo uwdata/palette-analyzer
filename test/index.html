@@ -25,10 +25,11 @@
         'tableau20'
       ];
 
-      var data = [];
-      for (var i = 0; i < palletes.length; i++) {
-        data = data.concat(palette_analyzer.analyze(palletes[i], 0.05));
-      }
+      var color_spaces = [
+        'RGB',
+        'Uniform Color Scheme',
+        'CIELAB (DE76)'
+      ]
 
       var spec = {
         "$schema": "https://vega.github.io/schema/vega/v3.0.json",
@@ -40,20 +41,17 @@
           {
             "name": "palette", "value": palletes[0],
             "bind": {"input": "select", "options": palletes}
+          },
+          {
+            "name": "stride", "value": 0.05,
+            "bind": {"input": "range", "min": 0.01, "max": 0.2, "step": 0.01}
           }
         ],
 
         "data": [
           {
-            "name": "table",
-            "values": data
-          },
-          {
             "name": "perPalette",
-            "source": "table",
-            "transform": [
-              {"type": "filter", "expr": "datum.palette ==palette"}
-            ]
+            "values": palette_analyzer.analyze(palletes[0], 0.05)
           }
         ],
 
@@ -76,7 +74,7 @@
             "name": "color",
             "type": "ordinal",
             "range": "category",
-            "domain": [1, 2, 3]
+            "domain": color_spaces
           }
         ],
 
@@ -93,7 +91,7 @@
               "enter": {
                 "x": {"scale": "x", "field": "x"},
                 "y": {"scale": "y", "field": "rgb"},
-                "stroke": {"scale": "color", "value": 1},
+                "stroke": {"scale": "color", "value": color_spaces[0]},
                 "strokeWidth": {"value": 2}
               }
             }
@@ -105,7 +103,7 @@
               "enter": {
                 "x": {"scale": "x", "field": "x"},
                 "y": {"scale": "y", "field": "ucs"},
-                "stroke": {"scale": "color", "value": 2},
+                "stroke": {"scale": "color", "value": color_spaces[1]},
                 "strokeWidth": {"value": 2}
               }
             }
@@ -117,11 +115,14 @@
               "enter": {
                 "x": {"scale": "x", "field": "x"},
                 "y": {"scale": "y", "field": "lab"},
-                "stroke": {"scale": "color", "value": 3},
+                "stroke": {"scale": "color", "value": color_spaces[2]},
                 "strokeWidth": {"value": 2}
               }
             }
           }
+        ],
+        "legends": [
+          {"stroke": "color", "title": "Color Space"}
         ]
       };
 
@@ -129,7 +130,21 @@
         loader: vega.loader({baseURL: 'https://vega.github.io/vega/'}),
         logLevel: vega.Warn,
         renderer: 'canvas'
-      }).initialize('#line-chart').hover().run();
+      }).initialize('#line-chart')
+        .hover()
+        .run()
+        .addSignalListener('stride', function (name, value) {
+          update(view.signal('palette'), value, view);
+        })
+        .addSignalListener('palette', function (name, value) {
+          update(value, view.signal('stride'), view);
+        });
+
+      var update = function (palette, stride, view) {
+        var data = view.data('perPalette').slice();
+        view.change('perPalette', vega.changeset().remove(data).insert(palette_analyzer.analyze(palette, stride)));
+      }
+
     </script>
 </body>
 </html>
