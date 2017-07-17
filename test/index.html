@@ -8,6 +8,7 @@
 </head>
 <body>
     <div id="line-chart"></div>
+    <div id="vis-tooltip"></div>
     <script>
       var palletes = [
         'viridis',
@@ -24,13 +25,6 @@
         'tableau10',
         'tableau20'
       ];
-
-      var color_spaces = [
-        'RGB',
-        'Uniform Color Scheme',
-        'CIELAB (DE76)',
-        'Color Name'
-      ]
 
       var spec = {
         "$schema": "https://vega.github.io/schema/vega/v3.0.json",
@@ -69,69 +63,66 @@
             "range": "height",
             "nice": true,
             "zero": true,
-            "domain": {"data": "perPalette", "field": "rgb"}
+            "domain": {"data": "perPalette", "field": "y"}
           },
           {
             "name": "color",
             "type": "ordinal",
             "range": "category",
-            "domain": color_spaces
+            "domain": {"data": "perPalette", "field": "space", "sort": true}
           }
         ],
 
         "axes": [
-          {"orient": "bottom", "scale": "x"},
-          {"orient": "left", "scale": "y"}
+          {"orient": "bottom", "scale": "x", "title": "Color"},
+          {"orient": "left", "scale": "y", "title": "Local Distance"}
         ],
 
         "marks": [
           {
-            "type": "line",
-            "from": {"data": "perPalette"},
-            "encode": {
-              "enter": {
-                "x": {"scale": "x", "field": "x"},
-                "y": {"scale": "y", "field": "rgb"},
-                "stroke": {"scale": "color", "value": color_spaces[0]},
-                "strokeWidth": {"value": 2}
+            "name": "p_group",
+            "type": "group",
+            "from": {
+              "facet": {
+                "name": "faceted_table",
+                "data": "perPalette",
+                "groupby": ["space"]
               }
-            }
-          },
-          {
-            "type": "line",
-            "from": {"data": "perPalette"},
+            },
             "encode": {
-              "enter": {
-                "x": {"scale": "x", "field": "x"},
-                "y": {"scale": "y", "field": "ucs"},
-                "stroke": {"scale": "color", "value": color_spaces[1]},
-                "strokeWidth": {"value": 2}
+              "update": {
+                "width": {"field": {"group": "width"}},
+                "height": {"field": {"group": "height"}}
               }
-            }
-          },
-          {
-            "type": "line",
-            "from": {"data": "perPalette"},
-            "encode": {
-              "enter": {
-                "x": {"scale": "x", "field": "x"},
-                "y": {"scale": "y", "field": "lab"},
-                "stroke": {"scale": "color", "value": color_spaces[2]},
-                "strokeWidth": {"value": 2}
-              }
-            }
-          },
-          {
-            "type": "line",
-            "from": {"data": "perPalette"},
-            "encode": {
-              "enter": {
-                "x": {"scale": "x", "field": "x"},
-                "y": {"scale": "y", "field": "color_name"},
-                "stroke": {"scale": "color", "value": color_spaces[3]},
-                "strokeWidth": {"value": 2}
-              }
-            }
+            },
+            "marks": [
+              {
+                "type": "line",
+                "from": {"data": "faceted_table"},
+                "encode": {
+                  "enter": {
+                    "x": {"scale": "x", "field": "x"},
+                    "y": {"scale": "y", "field": "y"},
+                    "stroke": {"scale": "color", "field": "space"},
+                    "strokeWidth": {"value": 3}
+                  }
+                }
+              },
+              {
+                "type": "symbol",
+                "from": {"data": "faceted_table"},
+                "encode": {
+                  "enter": {
+                    "x": {"scale": "x", "field": "x"},
+                    "y": {"scale": "y", "field": "y"},
+                    "fill": {"value": "#fff"},
+                    "stroke": {"field": "space"},
+                    "strokeWidth": {"value": 1},
+                    "size": {"value": 49}
+                  }
+                }
+              },
+            ]
           }
         ],
         "legends": [
