@@ -150,7 +150,8 @@
                     "fill": {"value": "#fff"},
                     "stroke": {"field": "space"},
                     "strokeWidth": {"value": 1},
-                    "size": {"value": 49}
+                    "size": {"value": 49},
+                    "tooltip": {"signal": "datum.name + ' compared to ' + datum.name_prev"}
                   }
                 }
               },
@@ -165,8 +166,7 @@
                 "y":{"value": 415},
                 "width": {"signal": "bandWidth"},
                 "height": {"value": 30},
-                "fill": {"field": "color"},
-                "tooltip": {"field": "name"}
+                "fill": {"field": "color"}
               }
             }
           },
