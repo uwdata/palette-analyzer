@@ -45,13 +45,20 @@
             "name": "stride", "value": 0.05,
             "bind": {"input": "range", "min": 0.01, "max": 0.1, "step": 0.01}
           },
+          {
+            "name": "global", "value": false,
+            "bind": {"input": "checkbox"}
+          },
+          {
+            "name": "pivot", "value": 0,
+            "bind": {"input": "range", "min": 0, "max": 100, "step": 1},
+          },
           {"name": "width", "value": 700},
           {"name": "bandWidth", "value": calculate_width(initial_data.length)}
         ],
 
         "data": [
-          {"name": "perPalette", "values": initial_data},
-          {"name": "firstColor", "values": initial_data[0]}
+          {"name": "perPalette", "values": initial_data}
         ],
 
         "scales": [
@@ -79,7 +86,7 @@
 
         "axes": [
           {"orient": "bottom", "scale": "x", "labels": false},
-          {"orient": "left", "scale": "y", "title": "Local Distance"}
+          {"orient": "left", "scale": "y", "title": "Color Distance"}
         ],
 
         "marks": [
@@ -143,20 +150,6 @@
             }
           },
           {
-            "type": "rect",
-            "from": {"data": "firstColor"},
-            "encode": {
-              "enter": {
-                "x": {"signal": "-bandWidth"},
-                "y":{"value": 415},
-                "width": {"signal": "bandWidth"},
-                "height": {"value": 30},
-                "fill": {"field": "color_prev"},
-                "tooltip": {"field": "name"}
-              }
-            }
-          },
-          {
             "type": "text",
             "from": {"data": "perPalette"},
             "encode": {
@@ -186,19 +179,29 @@
       }).initialize('#line-chart')
         .hover()
         .run()
-        .addSignalListener('stride', function (name, value) {
-          update(view.signal('palette'), value, view);
+        .addSignalListener('stride', function () {
+          update(view);
         })
-        .addSignalListener('palette', function (name, value) {
-          update(value, view.signal('stride'), view);
+        .addSignalListener('palette', function () {
+          update(view);
+        })
+        .addSignalListener('global', function () {
+          update(view);
+        })
+        .addSignalListener('pivot', function () {
+          update(view);
         });
 
-      var update = function (palette, stride, view) {
+      var update = function (view) {
         var data = view.data('perPalette').slice();
-        var data_new = palette_analyzer.analyze(palette, stride);
+        var global = view.signal('global');
+        var palette = view.signal('palette');
+        var stride = view.signal('stride');
+        var pivot = global ? view.signal('pivot') : null;
+        var data_new = palette_analyzer.analyze(palette, stride, pivot);
+
         view.signal('bandWidth', calculate_width(data_new.length));
         view.change('perPalette', vega.changeset().remove(data).insert(data_new));
-        view.change('firstColor', vega.changeset().remove(view.data('firstColor').slice()).insert(data_new[0]));
       }
 
       function calculate_width (length) {

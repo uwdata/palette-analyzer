@@ -23,7 +23,7 @@ function tuple_factory (palette, index, c1, c2, c1_name, c2_name) {
   }
 }
 
-function analyze (palette, stride) {
+function analyze (palette, stride, pivot) {
   stride = stride || 0.1
   let scheme = vega.scheme(palette)
   let diff = []
@@ -43,9 +43,11 @@ function analyze (palette, stride) {
     scheme = temp
   }
 
-  for (let i = 0; i < scheme.length - 1; i++) {
-    let c1 = scheme[i]
-    let c2 = scheme[i + 1]
+  pivot = pivot != null ? Math.min(scheme.length - 1, pivot) : pivot
+
+  for (let i = 0; i < scheme.length; i++) {
+    let c1 = pivot != null ? scheme[pivot] : (i === 0 ? scheme[i] : scheme[i - 1])
+    let c2 = scheme[i]
     let names = distanceNameCosine(c1, c2)
     let factory = tuple_factory(palette, i, c1, c2, names.name1, names.name2)
 
