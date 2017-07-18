@@ -62,6 +62,11 @@ export function distanceCIEDE2000 (c1, c2) {
   // TODO
 }
 
+/**
+ * A helper function to convert a color to its index in C3 color dictionary.
+ * @param color
+ * @returns {Number}
+ */
 function c3_index (color) {
   let x = d3.lab(color)
   let l = 5 * Math.round(x.l/5)
@@ -71,6 +76,23 @@ function c3_index (color) {
   return c3.map[lookup]
 }
 
+/**
+ * A helper function to get the most frequent name associated with a color.
+ * @param color_index
+ * @returns {string}
+ */
+function getColorName (color_index) {
+  let terms = c3.color.relatedTerms(color_index, 1)
+  return terms[0] ? c3.terms[terms[0].index] : 'unknown'
+}
+
+/**
+ * Compute the difference in their names between two colors. The distance
+ * is measured as cosine of the angle between two naming frequency vector.
+ * @param c1
+ * @param c2
+ * @returns {{name1: string, name2: string, distance: number}}
+ */
 export function distanceNameCosine (c1, c2) {
   // ask c3 to load data if this is never done before
   // note that it loads synchronously
@@ -90,5 +112,9 @@ export function distanceNameCosine (c1, c2) {
   let i2 = c3_index(c2)
 
   // compute the cosine difference
-  return 1 - c3.color.cosine(i1, i2)
+  return {
+    name1: getColorName(i1),
+    name2: getColorName(i2),
+    distance: 1 - c3.color.cosine(i1, i2)
+  }
 }

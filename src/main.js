@@ -6,7 +6,7 @@ import {
   distanceNameCosine
 } from './colorDistance'
 
-function tuple_factory (palette, index, c1, c2) {
+function tuple_factory (palette, index, c1, c2, c1_name, c2_name) {
   return {
     create: function (space, value) {
       return {
@@ -14,6 +14,8 @@ function tuple_factory (palette, index, c1, c2) {
         x: index,
         color_prev: c1,
         color: c2,
+        name_prev: c1_name,
+        name: c2_name,
         y: value,
         space: space
       }
@@ -44,12 +46,13 @@ function analyze (palette, stride) {
   for (let i = 0; i < scheme.length - 1; i++) {
     let c1 = scheme[i]
     let c2 = scheme[i + 1]
-    let factory = tuple_factory(palette, i, c1, c2)
+    let names = distanceNameCosine(c1, c2)
+    let factory = tuple_factory(palette, i, c1, c2, names.name1, names.name2)
 
     diff.push(factory.create('Uniform Color Scheme', distanceUCS(c1, c2)))
     diff.push(factory.create('RGB', distanceRGB(c1, c2)))
     diff.push(factory.create('CIELAB (DE76)', distanceLAB(c1, c2)))
-    diff.push(factory.create('Color Name', distanceNameCosine(c1, c2) * 50))
+    diff.push(factory.create('Color Name', names.distance * 50))
   }
 
   return diff
