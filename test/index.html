@@ -153,6 +153,9 @@
                     "strokeWidth": {"value": 1},
                     "size": {"value": 49},
                     "tooltip": {"signal": "datum.name + ' compared to ' + datum.name_prev"}
+                  },
+                  "update": {
+                    "opacity": {"signal": "stride === 0.01 ? 0 : 1"}
                   }
                 }
               },
@@ -185,6 +188,9 @@
                 "text": {"field": "name"},
                 "angle": {"value": 60},
                 "baseline": {"value": "middle"}
+              },
+              "update": {
+                "opacity": {"signal": "stride === 0.01 ? 0 : 1"}
               }
             }
           }
