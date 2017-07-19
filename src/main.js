@@ -56,7 +56,7 @@ function analyze (palette, stride, pivot) {
     let names = distanceNameCosine(c1, c2)
     let factory = tuple_factory(palette, i, c1, c2, names.name1, names.name2)
 
-    diff.push(factory.create('Uniform Color Scheme', distanceUCS(c1, c2)))
+    diff.push(factory.create('CIECAM02 UCS', distanceUCS(c1, c2)))
     diff.push(factory.create('RGB', distanceRGB(c1, c2)))
     diff.push(factory.create('CIELAB (DE76)', distanceLAB(c1, c2)))
     diff.push(factory.create('Color Name', names.distance * 50))
