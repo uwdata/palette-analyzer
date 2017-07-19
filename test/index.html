@@ -7,9 +7,11 @@
     <script src="../node_modules/vega/build/vega.js"></script>
 </head>
 <body>
-    <h3 style="padding: 0 15px">Palette Analyzer</h3>
-    <p style="padding: 0 15px 30px">Analyzes the local and global distances in [RGB, LAB, UCS, Color Names] model, given a palette.</p>
-    <div id="line-chart"></div>
+    <div style="padding: 30px 150px;">
+        <h3 style="padding: 0 15px">Palette Analyzer</h3>
+        <p style="padding: 0 15px 30px">Analyzes the local and global distances in [RGB, LAB, UCS, Color Names] model, given a palette.</p>
+        <div id="line-chart"></div>
+    </div>
 
     <script>
       var palletes = [
@@ -49,7 +51,7 @@
         'tableau10',
         'tableau20'
       ];
-      var width = 700;
+      var width = 800;
       var initial_data = palette_analyzer.analyze(palletes[0], 0.05);
 
       var spec = {

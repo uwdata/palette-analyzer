@@ -3,6 +3,11 @@ import {jab} from '../node_modules/d3-cam02/src/cam02.js'
 import {norm2} from './math.js'
 import {default as c3} from '../lib/c3'
 
+export const maxRGB = 442
+export const maxLAB = 173
+export const maxUCS = 173
+export const maxColorName = 1
+
 /**
  * Compute the color distance in RGB space.
  * https://en.wikipedia.org/wiki/Color_difference
