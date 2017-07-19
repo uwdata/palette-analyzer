@@ -1,4 +1,5 @@
 import * as vega from 'vega-scale'
+import {default as jet} from './jet'
 import {
   distanceUCS,
   distanceRGB,
@@ -28,9 +29,13 @@ function analyze (palette, stride, pivot) {
   let scheme = vega.scheme(palette)
   let diff = []
 
-  // sanity check
+  // sanity check, and sneak jet in
   if (!scheme) {
-    return diff
+    if (palette === 'jet') {
+      scheme = jet
+    } else {
+      return diff
+    }
   }
 
   // vega.scheme returns an array for categorical color scale and a function
