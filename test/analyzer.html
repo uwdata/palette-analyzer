@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Palette Analyzer</title>
+    <script src="../../build/palette-analyzer.js"></script>
+    <script src="../node_modules/vega/build/vega.js"></script>
+</head>
+<body>
+<div style="padding: 30px 150px;">
+    <h3 style="padding: 0 15px">Palette Analyzer</h3>
+    <p style="padding: 0 15px 30px">Analyzes the local and global distances in [RGB, LAB, UCS, Color Names] model, given a palette.</p>
+    <div id="line-chart"></div>
+</div>
+
+<script>
+    var palletes = [
+        'viridis',
+        'inferno',
+        'magma',
+        'plasma',
+        'bluegreen',
+        'bluepurple',
+        'greenblue',
+        'orangered',
+        'purplebluegreen',
+        'purpleblue',
+        'purplered',
+        'redpurple',
+        'yellowgreenblue',
+        'yellowgreen',
+        'yelloworangebrown',
+        'yelloworangered',
+        'blueorange',
+        'brownbluegreen',
+        'purplegreen',
+        'pinkyellowgreen',
+        'purpleorange',
+        'redblue',
+        'redgrey',
+        'redyellowblue',
+        'redyellowgreen',
+        'spectral',
+        'greens',
+        'blues',
+        'purples',
+        'reds',
+        'oranges',
+        'greys',
+        'jet',
+        'tableau10',
+        'tableau20'
+    ];
+    var width = 800;
+    var initial_data = palette_analyzer.analyze(palletes[0], 0.05);
+
+    var spec = {
+        "$schema": "https://vega.github.io/schema/vega/v3.0.json",
+        "width": width,
+        "height": 400,
+        "padding": 5,
+
+        "signals": [
+            {
+                "name": "palette", "value": palletes[0],
+                "bind": {"input": "select", "options": palletes}
+            },
+            {
+                "name": "stride", "value": 0.05,
+                "bind": {"input": "range", "min": 0.01, "max": 0.1, "step": 0.01}
+            },
+            {
+                "name": "global", "value": false,
+                "bind": {"input": "checkbox"}
+            },
+            {
+                "name": "pivot", "value": 0,
+                "bind": {"input": "range", "min": 0, "max": 100, "step": 1},
+            },
+            {"name": "width", "value": 700},
+            {"name": "bandWidth", "value": calculate_width(initial_data.length)}
+        ],
+
+        "data": [
+            {"name": "perPalette", "values": initial_data}
+        ],
+
+        "scales": [
+            {
+                "name": "x",
+                "type": "point",
+                "range": "width",
+                "domain": {"data": "perPalette", "field": "x"}
+            },
+            {
+                "name": "y",
+                "type": "linear",
+                "range": "height",
+                "nice": true,
+                "zero": true,
+                "domain": {"data": "perPalette", "field": "y"}
+            },
+            {
+                "name": "color",
+                "type": "ordinal",
+                "range": "category",
+                "domain": {"data": "perPalette", "field": "space", "sort": true}
+            }
+        ],
+
+        "axes": [
+            {"orient": "bottom", "scale": "x", "labels": false},
+            {"orient": "left", "scale": "y", "title": "Color Distance"}
+        ],
+
+        "marks": [
+            {
+                "name": "p_group",
+                "type": "group",
+                "from": {
+                    "facet": {
+                        "name": "faceted_table",
+                        "data": "perPalette",
+                        "groupby": ["space"]
+                    }
+                },
+                "encode": {
+                    "update": {
+                        "width": {"field": {"group": "width"}},
+                        "height": {"field": {"group": "height"}}
+                    }
+                },
+                "marks": [
+                    {
+                        "type": "line",
+                        "from": {"data": "faceted_table"},
+                        "encode": {
+                            "enter": {
+                                "x": {"scale": "x", "field": "x"},
+                                "y": {"scale": "y", "field": "y"},
+                                "stroke": {"scale": "color", "field": "space"},
+                                "strokeWidth": {"value": 3}
+                            }
+                        }
+                    },
+                    {
+                        "type": "symbol",
+                        "from": {"data": "faceted_table"},
+                        "encode": {
+                            "enter": {
+                                "x": {"scale": "x", "field": "x"},
+                                "y": {"scale": "y", "field": "y"},
+                                "fill": {"value": "#fff"},
+                                "stroke": {"field": "space"},
+                                "strokeWidth": {"value": 1},
+                                "size": {"value": 49},
+                                "tooltip": {"signal": "datum.name + ' compared to ' + datum.name_prev"}
+                            },
+                            "update": {
+                                "opacity": {"signal": "stride === 0.01 ? 0 : 1"}
+                            }
+                        }
+                    },
+                ]
+            },
+            {
+                "type": "rect",
+                "from": {"data": "perPalette"},
+                "encode": {
+                    "enter": {
+                        "x": {"scale": "x", "field": "x"},
+                        "y":{"value": 415},
+                        "width": {"signal": "bandWidth"},
+                        "height": {"value": 30},
+                        "fill": {"field": "color"}
+                    }
+                }
+            },
+            {
+                "type": "text",
+                "from": {"data": "perPalette"},
+                "encode": {
+                    "enter": {
+                        "x": {"scale": "x", "field": "x"},
+                        "dy": {"value": -10},
+                        "y": {"value": 460},
+                        "fontSize": {"value": 14},
+                        "fontWeight": {"value": "normal"},
+                        "fill": {"value": "#939393"},
+                        "text": {"field": "name"},
+                        "angle": {"value": 60},
+                        "baseline": {"value": "middle"}
+                    },
+                    "update": {
+                        "opacity": {"signal": "stride === 0.01 ? 0 : 1"}
+                    }
+                }
+            }
+        ],
+        "legends": [
+            {"stroke": "color", "title": "Color Space"}
+        ]
+    };
+
+    var view = new vega.View(vega.parse(spec), {
+        loader: vega.loader({baseURL: 'https://vega.github.io/vega/'}),
+        logLevel: vega.Warn,
+        renderer: 'canvas'
+    }).initialize('#line-chart')
+        .hover()
+        .run()
+        .addSignalListener('stride', function () {
+            update(view);
+        })
+        .addSignalListener('palette', function () {
+            update(view);
+        })
+        .addSignalListener('global', function () {
+            update(view);
+        })
+        .addSignalListener('pivot', function () {
+            update(view);
+        });
+
+    var update = function (view) {
+        var data = view.data('perPalette').slice();
+        var global = view.signal('global');
+        var palette = view.signal('palette');
+        var stride = view.signal('stride');
+        var pivot = global ? view.signal('pivot') : null;
+        var data_new = palette_analyzer.analyze(palette, stride, pivot);
+
+        view.signal('bandWidth', calculate_width(data_new.length));
+        view.change('perPalette', vega.changeset().remove(data).insert(data_new));
+    }
+
+    function calculate_width (length) {
+        return width / length * 4.5;
+    }
+
+</script>
+</body>
+</html>
