@@ -19,7 +19,8 @@
     "d3-cam02": "^0.1.4",
     "d3-color": "^1.0.3",
     "vega": "^3.0.0-rc3",
-    "vega-scale": "^2.0.1"
+    "vega-scale": "^2.0.1",
+    "vega-statistics": "^1.1.4"
   },
   "devDependencies": {
     "eslint": "^4.2.0",

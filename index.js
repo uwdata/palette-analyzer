@@ -1,1 +1,2 @@
-export {analyze} from './src/main.js'
+export {analyze} from './src/main'
+export {generateData} from './src/experiment'
