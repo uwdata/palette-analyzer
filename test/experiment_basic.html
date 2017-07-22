@@ -1,154 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Color Distance Experiment</title>
-    <script src="../node_modules/vega/build/vega.js"></script>
+  <meta charset="UTF-8">
+  <title>Color Distance Experiment</title>
+  <link rel="stylesheet" href="../lib/bootstrap.min.css" />
+  <script src="../node_modules/vega/build/vega.js"></script>
+  <script src="https://unpkg.com/vue"></script>
 </head>
 <body>
-    <div style="margin-left: auto; margin-right: auto; width: 530px; padding-top: 200px">
-        <div id="vis"></div>
+  <div style="margin-left: auto; margin-right: auto; width: 530px; padding-top: 200px">
+    <div id="vis"></div>
+  </div>
+  <div class="text-center" id="app">
+    <div class="form-inline" style="margin: 80px 0px;">
+      <div class="form-group">
+        <label>Left</label>
+        <input class="form-control" v-model="left"/>
+      </div>
+      <div class="form-group">
+        <label>Right</label>
+        <input class="form-control" v-model="right"/>
+      </div>
+      <div class="form-group">
+        <label>Distance</label>
+        <input class="form-control" v-model="diff"/>
+      </div>
     </div>
+    <button v-on:click="done" class="btn btn-default">I'm done</button>
+  </div>
 
-    <script>
-      var diff = 0.05;
-      var initial = rand();
+  <script>
+    var diff = 0.05;
+    var initial = rand();
+    var result = [];
 
-      var spec = {
-        "$schema": "https://vega.github.io/schema/vega/v3.0.json",
-        "width": 400,
-        "height": 100,
-        "padding": 5,
+    var spec = {
+      "$schema": "https://vega.github.io/schema/vega/v3.0.json",
+      "width": 400,
+      "height": 100,
+      "padding": 5,
 
-        "data": [
-          {"name": "first", "values": [{"y": initial[0]}]},
-          {"name": "second", "values": [{"y": initial[1]}]}
-        ],
-        "signals": [
-          {
-            "name": "palette", "value": "Viridis",
-            "bind": {
-              "input": "select",
-              "options": [
-                "Viridis",
-                "Magma",
-                "Greys"
-              ]
-            }
-          },
-          {"name": "reveal", "value": false, "bind": {"input": "checkbox"}},
-          {"name": "next", "value": 0, "on": [
-            {"events": "click", "update": "next + 1"}
-          ]}
-        ],
+      "data": [
+        {"name": "first", "values": [{"y": initial[0]}]},
+        {"name": "second", "values": [{"y": initial[1]}]}
+      ],
+      "signals": [
+        {"name": "reveal", "value": false},
+        {"name": "next", "value": 0, "on": [
+          {"events": "click", "update": "next + 1"}
+        ]}
+      ],
 
-        "scales": [
-          {
-            "name": "color",
-            "type": "sequential",
-            "range": {"scheme": {"signal": "palette"}},
-            "domain": [0.0, 1.0],
-            "zero": false, "nice": false
-          }
-        ],
-
-        "marks": [
-          {
-            "type": "rect",
-            "from": {"data": "first"},
-            "encode": {
-              "update": {
-                "xc": {"value": 160},
-                "y":{"value": 0},
-                "width": {"value": 80},
-                "height": {"value": 80},
-                "fill": {"scale": "color", "field": "y"}
-              }
-            }
-          },
-          {
-            "type": "rect",
-            "from": {"data": "second"},
-            "encode": {
-              "update": {
-                "x": {"value": 240},
-                "y":{"value": 0},
-                "width": {"value": 80},
-                "height": {"value": 80},
-                "fill": {"scale": "color", "field": "y"}
-              }
-            }
-          },
-          {
-            "type": "group",
-            "marks": [
-              {
-                "type": "text",
-                "from": {"data": "first"},
-                "encode": {
-                  "enter": {
-                    "xc": {"value": 160},
-                    "y": {"value": 95},
-                    "align": {"value": "center"},
-                    "text": {"signal": "datum.y"}
-                  },
-                  "update": {
-                    "fill": [
-                      {"test": "reveal == false", "value": "white"},
-                      {"value": "black"}
-                    ]
-                  }
-                }
-              },
-              {
-                "type": "text",
-                "from": {"data": "second"},
-                "encode": {
-                  "enter": {
-                    "xc": {"value": 280},
-                    "y": {"value": 95},
-                    "align": {"value": "center"},
-                    "text": {"signal": "datum.y"}
-                  },
-                  "update": {
-                    "fill": [
-                      {"test": "reveal == false", "value": "white"},
-                      {"value": "black"}
-                    ]
-                  }
-                }
-              }
-            ]
-          }
-        ],
-        "legends": [
-          {"fill": "color", "type": "gradient", "title": "Color Scale"}
-        ]
-      }
-
-      function rand() {
-        var val1, val2;
-        val1 = Math.random().toFixed(2);
-        for (val2 = val1; val2 - val1 < diff; ) {
-          val2 = Math.random().toFixed(2);
+      "scales": [
+        {
+          "name": "color",
+          "type": "sequential",
+          "range": {"scheme": "Viridis"},
+          "domain": [0.0, 1.0],
+          "zero": false, "nice": false
         }
+      ],
 
-        return [val1, val2]
+      "marks": [
+        {
+          "type": "rect",
+          "from": {"data": "first"},
+          "encode": {
+            "update": {
+              "xc": {"value": 160},
+              "y":{"value": 0},
+              "width": {"value": 80},
+              "height": {"value": 80},
+              "fill": {"scale": "color", "field": "y"}
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "from": {"data": "second"},
+          "encode": {
+            "update": {
+              "x": {"value": 240},
+              "y":{"value": 0},
+              "width": {"value": 80},
+              "height": {"value": 80},
+              "fill": {"scale": "color", "field": "y"}
+            }
+          }
+        },
+        {
+          "type": "group",
+          "marks": [
+            {
+              "type": "text",
+              "from": {"data": "first"},
+              "encode": {
+                "enter": {
+                  "xc": {"value": 160},
+                  "y": {"value": 95},
+                  "align": {"value": "center"},
+                  "text": {"signal": "datum.y"}
+                },
+                "update": {
+                  "fill": [
+                    {"test": "reveal == false", "value": "white"},
+                    {"value": "black"}
+                  ]
+                }
+              }
+            },
+            {
+              "type": "text",
+              "from": {"data": "second"},
+              "encode": {
+                "enter": {
+                  "xc": {"value": 280},
+                  "y": {"value": 95},
+                  "align": {"value": "center"},
+                  "text": {"signal": "datum.y"}
+                },
+                "update": {
+                  "fill": [
+                    {"test": "reveal == false", "value": "white"},
+                    {"value": "black"}
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "legends": [
+        {"fill": "color", "type": "gradient", "title": "Color Scale"}
+      ]
+    }
+
+    function rand() {
+      var val1, val2;
+      val1 = Math.random().toFixed(2);
+      for (val2 = val1; val2 - val1 < diff; ) {
+        val2 = Math.random().toFixed(2);
       }
 
-      var view = new vega.View(vega.parse(spec), {
-        logLevel: vega.Warn,
-        renderer: 'canvas'
-      }).initialize('#vis')
-        .hover()
-        .run()
-        .addSignalListener('next', function () {
-          var data = rand();
+      return [val1, val2]
+    }
 
-          view.signal('reveal', false);
-          view.change('first', vega.changeset().remove(view.data('first').slice()).insert([{"y": data[0]}]));
-          view.change('second', vega.changeset().remove(view.data('second').slice()).insert([{"y": data[1]}]));
+    var app = new Vue({
+      el: "#app",
+      data: {
+        left: "",
+        right: "",
+        diff: ""
+      },
+      methods: {
+        done: function () {
+          console.log(JSON.stringify(result));
+        }
+      }
+    });
+
+    var view = new vega.View(vega.parse(spec), {
+      logLevel: vega.Warn,
+      renderer: 'canvas'
+    }).initialize('#vis')
+      .hover()
+      .run()
+      .addSignalListener('next', function () {
+        var tl = view.data('first').slice();
+        var tr = view.data('second').slice();
+        var data = rand();
+
+        result.push({
+          left: tl[0].y,
+          right: tr[0].y,
+          user_left: app.left,
+          user_right: app.right,
+          user_diff: app.diff
         });
-    </script>
+        app.left = app.right = app.diff = "";
+
+        view.signal('reveal', false);
+        view.change('first', vega.changeset().remove(tl).insert([{"y": data[0]}]));
+        view.change('second', vega.changeset().remove(tr).insert([{"y": data[1]}]));
+      });
+  </script>
 </body>
 </html>
