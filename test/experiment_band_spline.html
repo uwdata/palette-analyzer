@@ -11,6 +11,12 @@
   <div id="vis"></div>
 </div>
 <script>
+  var data = palette_analyzer.dataSpline()
+  var x1 = 250
+  var x2 = 275
+  var x3 = 225
+  console.log(data[x3].y, data[x1].y, data[x2].y)
+
   var spec = {
     "$schema": "https://vega.github.io/schema/vega/v3.0.json",
     "width": 500,
@@ -25,7 +31,11 @@
     "data": [
       {
         "name": "table",
-        "values": palette_analyzer.dataGaussian()
+        "values": data
+      },
+      {
+        "name": "ticks",
+        "values": [{"x": x1, "t": "B"}, {"x": x2, "t": "C"}, {"x": x3, "t": "A"}]
       }
     ],
     "scales": [
@@ -63,6 +73,33 @@
             "width": {"value": 1},
             "height": {"value": 30},
             "fill": {"scale": "color", "field": "y"}
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "from": {"data": "ticks"},
+        "encode": {
+          "update": {
+            "x": {"scale": "xscale", "field": "x"},
+            "width": {"value": 2},
+            "y": {"value": -10},
+            "height": {"value": 10},
+            "fill": {"value": "black"}
+          }
+        }
+      },
+      {
+        "type": "text",
+        "from": {"data": "ticks"},
+        "encode": {
+          "update": {
+            "xc": {"scale": "xscale", "field": "x"},
+            "y": {"value": -15},
+            "text": {"field": "t"},
+            "fill": {"value": "black"},
+            "fontWeight": {"value": "bold"},
+            "align": {"value": "center"}
           }
         }
       }
