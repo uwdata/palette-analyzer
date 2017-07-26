@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Color Distance Experiment</title>
+  <link rel="stylesheet" href="../lib/bootstrap.min.css" />
+  <script src="../node_modules/vega/build/vega.js"></script>
+  <script src="https://unpkg.com/vue"></script>
+  <style>
+    .square {
+      width: 50px;
+      height: 50px;
+      margin: 5px;
+    }
+
+    .square-wrapper {
+      margin: 25px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="text-center" id="app">
+    <div style="margin-top: 80px;">
+      <h4>Which is closer to the reference, A or B?</h4>
+    </div>
+    <div class="square-wrapper text-center">
+      <div class="text-muted">Reference</div>
+      <div class="square" v-bind:style="{backgroundColor: ref}"></div>
+    </div>
+    <div style="margin-bottom: 50px">
+      <div class="square-wrapper">
+        <div class="square" v-bind:style="{backgroundColor: left}"></div>
+        <div class="text-muted">A</div>
+      </div>
+      <div class="square-wrapper">
+        <div class="square" v-bind:style="{backgroundColor: right}"></div>
+        <div class="text-muted">B</div>
+      </div>
+    </div>
+    <div id="vis"></div>
+  </div>
+  <script>
+    var raw = [0.2, 0.25, 0.15];
+    var scheme = vega.scheme('viridis');
+    var data = raw.map((val) => scheme(val));
+
+    var app = new Vue({
+      el: "#app",
+      data: {
+        left: data[1],
+        right: data[2],
+        ref: data[0]
+      }
+    });
+
+    var legend = [];
+    for (var i = 0; i < 400; i++) {
+      legend.push({"x": i / 40, "y": i})
+    }
+
+    var spec = {
+      "$schema": "https://vega.github.io/schema/vega/v3.0.json",
+      "width": 400,
+      "height": 35,
+      "padding": 5,
+      "data": [
+        {"name": "table", "values": legend}
+      ],
+      "scales": [
+        {
+          "name": "xscale",
+          "type": "linear",
+          "range": "width",
+          "domain": {"data": "table", "field": "x"},
+          "nice": true
+        },
+        {
+          "name": "color",
+          "type": "sequential",
+          "range": {"scheme": "Viridis"},
+          "domain": {"data": "table", "field": "y"},
+          "zero": false, "nice": false
+        }
+      ],
+      "axes": [
+        {"orient": "bottom", "scale": "xscale", "tickCount": 10}
+      ],
+      "marks": [
+        {
+          "type": "rect",
+          "from": {"data": "table"},
+          "encode": {
+            "update": {
+              "x": {"scale": "xscale", "field": "x"},
+              "y": {"value": 0},
+              "width": {"value": 1},
+              "height": {"value": 30},
+              "fill": {"scale": "color", "field": "y"}
+            }
+          }
+        }
+      ]
+    };
+
+    var view = new vega.View(vega.parse(spec), {
+      logLevel: vega.Warn,
+      renderer: 'canvas'
+    }).initialize('#vis')
+      .hover()
+      .run();
+  </script>
+</body>
+</html>
