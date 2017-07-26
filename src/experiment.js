@@ -2,11 +2,11 @@ import * as stat from 'vega-statistics'
 import {spline} from '../lib/cubicSpline'
 
 /**
- * Normalize the values to be within [0, 1] and format.
+ * Normalize the values to be within [0, 1].
  * @param {Array} data An array of *scala* value (i.e. y values only)
  * @return {Array}
  */
-function format (data) {
+function normalize (data) {
   let min = Infinity
   let max = -Infinity
 
@@ -16,10 +16,21 @@ function format (data) {
   })
 
   // normalize y to be within [0, 1]
+  data = data.map((val) => (val - min) / (max - min))
+
+  return data
+}
+
+/**
+ * Format a scalar array into [{"x": index, "y": value}]
+ * @param data
+ * @returns {Array}
+ */
+function format (data) {
   data = data.map((val, idx) => {
     return {
       "x": idx,
-      "y": (val - min) / (max - min)
+      "y": val
     }
   })
 
@@ -66,7 +77,7 @@ function dataGaussian (modes, steps) {
     result.push(s)
   }
 
-  return format(result)
+  return format(normalize(result))
 }
 
 function dataSpline (steps) {
@@ -85,7 +96,7 @@ function dataSpline (steps) {
     result.push(spline(1 / steps * i, xs, ys))
   }
 
-  return format(result)
+  return format(normalize(result))
 }
 
 function dataPeaks (peaks, steps) {
@@ -107,13 +118,35 @@ function dataPeaks (peaks, steps) {
   }
 
   for (let i = 0; i < steps; i++) {
-    result.push({
-      "x": i,
-      "y": spline(1 / steps * i, xs, ys)
-    })
+    result.push(spline(1 / steps * i, xs, ys))
   }
 
-  return result
+  return format(result)
 }
 
-export {dataGaussian, dataSpline, dataPeaks}
+function dataMax (steps) {
+  steps = steps || 500
+
+  const vy = 0.05
+  const vx = 0.1
+  const seed = Math.random()
+  const pos = 0.25 + Math.random() * 0.5
+  let comp = seed - vy
+
+  let xs = [0, pos - vx, pos, pos + vx, 1]
+  let ys = [comp, comp, seed, comp, comp]
+  let result = []
+
+  for (let i = 0; i < steps; i++) {
+    result.push(spline(1 / steps * i, xs, ys))
+  }
+
+  return format(result)
+}
+
+export {
+  dataGaussian,
+  dataSpline,
+  dataPeaks,
+  dataMax
+}
