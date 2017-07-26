@@ -144,9 +144,33 @@ function dataMax (steps) {
   return format(result)
 }
 
+function dataMonotonic (steps) {
+  steps = steps || 500
+
+  let xs = []
+  let ys = []
+  let y = 0
+
+  for (let i = 0; i <= 1; i += 0.1) {
+    xs.push(i)
+    ys.push(y)
+
+    y = clamp(y + Math.random() * 0.2)
+  }
+
+  let result = []
+
+  for (let i = 0; i < steps; i++) {
+    result.push(spline(1 / steps * i, xs, ys))
+  }
+
+  return format(result)
+}
+
 export {
   dataGaussian,
   dataSpline,
   dataPeaks,
-  dataMax
+  dataMax,
+  dataMonotonic
 }
