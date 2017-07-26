@@ -88,4 +88,32 @@ function dataSpline (steps) {
   return format(result)
 }
 
-export {dataGaussian, dataSpline}
+function dataPeaks (peaks, steps) {
+  peaks = peaks || 4
+  steps = steps || 500
+
+  const vy = 0.05
+  const seed = Math.random()
+  let comp = seed - vy
+
+  let xs = []
+  let ys = []
+  let result = []
+  let s = 0.5 / peaks
+
+  for (let i = 0; i < 2 * peaks + 1; i++) {
+    xs.push(s * i)
+    ys.push(i % 2 ? seed : comp)
+  }
+
+  for (let i = 0; i < steps; i++) {
+    result.push({
+      "x": i,
+      "y": spline(1 / steps * i, xs, ys)
+    })
+  }
+
+  return result
+}
+
+export {dataGaussian, dataSpline, dataPeaks}

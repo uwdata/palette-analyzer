@@ -1,2 +1,2 @@
 export {analyze} from './src/main'
-export {dataGaussian, dataSpline} from './src/experiment'
+export {dataGaussian, dataSpline, dataPeaks} from './src/experiment'

@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title>Color Judgement Experiment</title>
+  <link rel="stylesheet" href="../lib/bootstrap.min.css" />
   <script src="../../build/palette-analyzer.js"></script>
   <script src="../node_modules/vega/build/vega.js"></script>
 </head>
 <body>
-<div style="margin-left: auto; margin-right: auto; width: 530px; padding-top: 200px">
+<div class="text-center">
+  <div style="margin: 80px;">
+    <h4>How many peaks does the image contain?</h4>
+  </div>
   <div id="vis"></div>
 </div>
 <script>
-  var data = palette_analyzer.dataSpline()
-  var x1 = 250
-  var x2 = 275
-  var x3 = 225
-  console.log(data[x3].y, data[x1].y, data[x2].y)
+  var data = palette_analyzer.dataPeaks()
 
   var spec = {
     "$schema": "https://vega.github.io/schema/vega/v3.0.json",
@@ -23,19 +23,10 @@
     "height": 100,
     "padding": 5,
 
-    "signals": [
-      {
-        "name": "reverse", "value": false, "bind": {"input": "checkbox"}
-      }
-    ],
     "data": [
       {
         "name": "table",
         "values": data
-      },
-      {
-        "name": "ticks",
-        "values": [{"x": x1, "t": "B"}, {"x": x2, "t": "C"}, {"x": x3, "t": "A"}]
       }
     ],
     "scales": [
@@ -50,13 +41,8 @@
         "name": "color",
         "type": "sequential",
         "range": {"scheme": "Viridis"},
-        "reverse": {"signal": "reverse"},
         "zero": false, "nice": false,
-        "domain": {
-          "fields": [
-            {"data": "table", "field": "y"}
-          ]
-        }
+        "domain": [0, 1]
       }
     ],
     "legends": [
@@ -73,33 +59,6 @@
             "width": {"value": 1},
             "height": {"value": 30},
             "fill": {"scale": "color", "field": "y"}
-          }
-        }
-      },
-      {
-        "type": "rect",
-        "from": {"data": "ticks"},
-        "encode": {
-          "update": {
-            "x": {"scale": "xscale", "field": "x"},
-            "width": {"value": 2},
-            "y": {"value": -10},
-            "height": {"value": 10},
-            "fill": {"value": "black"}
-          }
-        }
-      },
-      {
-        "type": "text",
-        "from": {"data": "ticks"},
-        "encode": {
-          "update": {
-            "xc": {"scale": "xscale", "field": "x"},
-            "y": {"value": -15},
-            "text": {"field": "t"},
-            "fill": {"value": "black"},
-            "fontWeight": {"value": "bold"},
-            "align": {"value": "center"}
           }
         }
       }
