@@ -3,10 +3,11 @@ import {jab} from '../node_modules/d3-cam02/src/cam02.js'
 import {norm2} from './math.js'
 import {default as c3} from '../lib/c3'
 
-export const maxRGB = 442
-export const maxLAB = 173
-export const maxUCS = 173
-export const maxColorName = 1
+export const maxRGB = 442 // sqrt(255 * 255 * 3)
+export const maxLAB = 235 // this is questionable
+export const maxUCS = 173 // this is questionable
+export const maxColorName = 1 // by definition
+export const maxLuminance = 100 // L* is within [0, 1]
 
 /**
  * Compute the color distance in RGB space.
@@ -23,6 +24,19 @@ export function distanceRGB (c1, c2) {
   let q = [c2.r, c2.g, c2.b]
 
   return norm2(p, q)
+}
+
+/**
+ * Compute the distance in LAB Luminance channel.
+ * @param c1
+ * @param c2
+ * @returns {number}
+ */
+export function distanceLuminance (c1, c2) {
+  c1 = d3.lab(d3.color(c1))
+  c2 = d3.lab(d3.color(c2))
+
+  return Math.abs(c1.l - c2.l)
 }
 
 /**

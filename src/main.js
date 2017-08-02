@@ -5,9 +5,11 @@ import {
   distanceRGB,
   distanceLAB,
   distanceNameCosine,
+  distanceLuminance,
   maxColorName,
   maxUCS,
   maxLAB,
+  maxLuminance,
   maxRGB
 } from './colorDistance'
 
@@ -63,6 +65,7 @@ function analyze (palette, stride, pivot) {
     diff.push(factory.create('CIECAM02 UCS', distanceUCS(c1, c2) / maxUCS))
     diff.push(factory.create('RGB', distanceRGB(c1, c2) / maxRGB))
     diff.push(factory.create('CIELAB (DE76)', distanceLAB(c1, c2) / maxLAB))
+    diff.push(factory.create('Luminance', distanceLuminance(c1, c2) / maxLuminance))
     diff.push(factory.create('Color Name', names.distance / maxColorName))
   }
 
