@@ -4,7 +4,7 @@ import {
   distanceUCS,
   distanceRGB,
   distanceLAB,
-  distanceNameCosine,
+  distanceName_,
   distanceLuminance,
   maxColorName,
   maxUCS,
@@ -59,7 +59,7 @@ function analyze (palette, stride, pivot) {
   for (let i = 0; i < scheme.length; i++) {
     let c1 = pivot != null ? scheme[pivot] : (i === 0 ? scheme[i] : scheme[i - 1])
     let c2 = scheme[i]
-    let names = distanceNameCosine(c1, c2)
+    let names = distanceName_(c1, c2)
     let factory = tuple_factory(palette, i, c1, c2, names.name1, names.name2)
 
     diff.push(factory.create('CIECAM02 UCS', distanceUCS(c1, c2) / maxUCS))

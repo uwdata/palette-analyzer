@@ -72,16 +72,6 @@ export function distanceUCS (c1, c2) {
 }
 
 /**
- * Compute the perceptual distance between two colors, using CIEDE2000.
- * @param c1 Color 1.
- * @param c2 Color 2.
- * @returns {Number} The perceptual distance between c1 and c2.
- */
-export function distanceCIEDE2000 (c1, c2) {
-  // TODO
-}
-
-/**
  * A helper function to convert a color to its index in C3 color dictionary.
  * @param color
  * @returns {Number}
@@ -106,15 +96,10 @@ function getColorName (color_index) {
 }
 
 /**
- * Compute the difference in their names between two colors. The distance
- * is measured as cosine of the angle between two naming frequency vector.
- * @param c1
- * @param c2
- * @returns {{name1: string, name2: string, distance: number}}
+ * Ask c3 to load data if this is never done before
+ * Note that it loads synchronously
  */
-export function distanceNameCosine (c1, c2) {
-  // ask c3 to load data if this is never done before
-  // note that it loads synchronously
+function initC3() {
   if (!c3.color) {
     c3.load('../lib/c3_data.json')
 
@@ -122,9 +107,21 @@ export function distanceNameCosine (c1, c2) {
     c3.map = {}
     for (let c = 0; c < c3.color.length; ++c) {
       let x = c3.color[c];
-      c3.map[[x.l, x.a, x.b].join(",")] = c;
+      c3.map[[x.l, x.a, x.b].join(",")] = c
     }
   }
+}
+
+
+/**
+ * Compute the difference in their names between two colors. The distance
+ * is measured as cosine of the angle between two naming frequency vector.
+ * @param c1
+ * @param c2
+ * @returns {{name1: string, name2: string, distance: number}}
+ */
+export function distanceName_ (c1, c2) {
+  initC3()
 
   // find the index of the two colors
   let i1 = c3_index(c1)
@@ -136,4 +133,39 @@ export function distanceNameCosine (c1, c2) {
     name2: getColorName(i2),
     distance: 1 - c3.color.cosine(i1, i2)
   }
+}
+
+/**
+ * Compute the difference in their names between two colors. The distance
+ * is measured as cosine of the angle between two naming frequency vector.
+ * @param c1
+ * @param c2
+ * @returns {number}
+ */
+export function distanceNameCosine (c1, c2) {
+  initC3()
+
+  // find the index of the two colors
+  let i1 = c3_index(c1)
+  let i2 = c3_index(c2)
+
+  // compute the cosine difference
+  return 1 - c3.color.cosine(i1, i2)
+}
+
+/**
+ * The name salience score for a color.
+ * @param c1
+ * @returns {number}
+ */
+export function nameSalience(c1) {
+  initC3()
+
+  const minE = -4.5
+  const maxE = 0
+
+  let c = c3_index(c1)
+  let h = (c3.color.entropy(c) - minE) / (maxE - minE)
+
+  return h
 }
